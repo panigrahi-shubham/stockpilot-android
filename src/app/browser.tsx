@@ -11,6 +11,7 @@ import { Button, ProgressBar } from '@/components/ui';
 import { Sheet } from '@/components/overlays';
 
 const BOOKMARKS = [
+  { id: 'vortex', title: 'Vortex QA', subtitle: 'vortex-qa.vercel.app · automation playground', url: 'https://vortex-qa.vercel.app' },
   { id: 'gst', title: 'GST taxpayer search', subtitle: 'services.gst.gov.in · verify any GSTIN', url: 'https://services.gst.gov.in/services/searchtp' },
   { id: 'pincode', title: 'India Post pincode API', subtitle: 'api.postalpincode.in · raw JSON', url: 'https://api.postalpincode.in/pincode/500016' },
   { id: 'login', title: 'Practice: login form', subtitle: 'the-internet.herokuapp.com · tomsmith / SuperSecretPassword!', url: 'https://the-internet.herokuapp.com/login' },

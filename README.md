@@ -6,6 +6,8 @@ Built with **Expo SDK 58 / React Native 0.88 / Expo Router**, so the same code r
 
 Most of the app runs against a built-in mock backend, so tests are repeatable. A few features call **real public APIs** (live exchange rates, India Post pincode lookup) and one screen is a **real in-app browser** — so you also get practice with the messiness of live data.
 
+The Web portal includes a **Vortex QA** bookmark that opens https://vortex-qa.vercel.app in the app's WebView. StockPilot and Vortex use separate accounts and data; opening Vortex does not connect StockPilot's native screens to the Vortex API.
+
 ![StockPilot screens](docs/screenshots/overview.png)
 
 **New in 2.5.0 — seller mode, leads, inbox, compare, reviews, live data:**
