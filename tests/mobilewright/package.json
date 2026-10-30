@@ -1,0 +1,22 @@
+{
+  "name": "stockpilot-mobilewright-tests",
+  "version": "1.0.0",
+  "description": "Mobilewright (Playwright-style) sample suite for the StockPilot B2B demo app",
+  "scripts": {
+    "test": "mobilewright test",
+    "test:android": "PLATFORM=android mobilewright test",
+    "test:ios": "PLATFORM=ios mobilewright test",
+    "report": "mobilewright show-report",
+    "doctor": "mobilewright doctor",
+    "inspect": "mobilewright inspect",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@mobilewright/test": "^0.0.67",
+    "@types/node": "^26.6.5",
+    "mobilewright": "^0.0.67",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}

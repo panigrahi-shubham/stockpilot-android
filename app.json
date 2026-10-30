@@ -1,0 +1,88 @@
+{
+  "expo": {
+    "name": "StockPilot B2B",
+    "slug": "stockpilot-b2b",
+    "version": "2.5.0",
+    "scheme": "stockpilot",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stockpilot.b2b",
+      "buildNumber": "250",
+      "infoPlist": {
+        "NSCameraUsageDescription": "StockPilot uses the camera to scan product barcodes and attach photos to disputes.",
+        "NSLocationWhenInUseUsageDescription": "StockPilot uses your location to auto-fill your store address.",
+        "NSPhotoLibraryUsageDescription": "StockPilot needs photo access to attach images to disputes and KYC.",
+        "NSFaceIDUsageDescription": "Use Face ID to unlock StockPilot quickly and securely."
+      }
+    },
+    "android": {
+      "package": "com.stockpilot.b2b",
+      "versionCode": 250,
+      "adaptiveIcon": {
+        "backgroundColor": "#0E5E4F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#0E5E4F"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "StockPilot uses the camera to scan product barcodes and attach photos to disputes.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "StockPilot uses your location to auto-fill your store address."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "StockPilot needs photo access to attach images to disputes and KYC.",
+          "cameraPermission": "StockPilot uses the camera to attach photos to disputes."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Use Face ID to unlock StockPilot quickly and securely."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0E5E4F"
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
