@@ -13,4 +13,4 @@ npx mobilewright install
 
 # The app is installed once above; the tests reset its data before each flow.
 unset APP_PATH
-npm test -- --reporter list,html --workers 1 --retries 0
+npm test -- --reporter list,html --workers 1 --retries 0 --shard "${MOBILEWRIGHT_SHARD:-1/1}"

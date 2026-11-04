@@ -30,8 +30,9 @@ APK and never builds the app. Provide a stable HTTPS APK URL using the repositor
 variable `MOBILEWRIGHT_APK_URL` or the manual `apk_url` input. Otherwise, CI reuses
 the newest unexpired `StockPilot-B2B-apk` artifact from this repository.
 
-All 36 cases run serially with no CI retries, including the online/WebView cases.
-The **mobilewright-android-report** artifact includes the HTML report, failure
+All 36 cases are distributed across three emulator jobs, each running serially
+with no CI retries, including the online/WebView cases.
+Each **mobilewright-android-report-1**, **-2**, or **-3** artifact includes its HTML report, failure
 attachments, and logcat even when tests fail. Download and extract the artifact,
 then run `npx mobilewright show-report ./mobilewright-report`.
 

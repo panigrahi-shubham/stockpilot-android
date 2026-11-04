@@ -21,15 +21,20 @@ concurrency:
 
 jobs:
   android:
-    name: Mobilewright Android tests
+    name: Mobilewright Android (${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     defaults:
       run:
         working-directory: tests/mobilewright
     env:
       CI: '1'
       PLATFORM: android
+      MOBILEWRIGHT_SHARD: ${{ matrix.shard }}/3
       PLAYWRIGHT_HTML_OPEN: never
     steps:
       - name: Check out tests
@@ -106,7 +111,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: mobilewright-android-report
+          name: mobilewright-android-report-${{ matrix.shard }}
           path: |
             tests/mobilewright/mobilewright-report/
             tests/mobilewright/test-results/

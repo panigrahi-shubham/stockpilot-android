@@ -33,7 +33,8 @@ This repository's CI is for **Mobilewright testing**. The **Mobilewright Tests**
 workflow runs on branch pushes, pull requests, and manual dispatch from
 **Actions → Mobilewright Tests → Run workflow**. It installs only the test
 dependencies, checks the test suite's types, boots an Android 35 emulator,
-installs an existing StockPilot APK, and runs all 36 cases serially.
+installs an existing StockPilot APK, and runs all 36 cases across three independent
+emulator jobs. Each job runs its shard serially on one device.
 CI does not build APKs or export app bundles.
 
 The APK comes from the `apk_url` manual input, the `MOBILEWRIGHT_APK_URL`
@@ -42,7 +43,7 @@ in this repository, in that order. Set the variable to a stable HTTPS URL for
 long-term use: historical Actions APK artifacts eventually expire. The APK must
 include `x86_64` support for the CI emulator.
 
-Each run uploads **mobilewright-android-report**, containing the HTML report,
+Each job uploads **mobilewright-android-report-1**, **-2**, or **-3**, containing its HTML report,
 failure attachments, and Android logcat. Download it and open the report with
 `npx mobilewright show-report ./mobilewright-report`. Test failures fail CI.
 

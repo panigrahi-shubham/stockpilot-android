@@ -16,10 +16,13 @@ export default defineConfig({
   timeout: 120_000,
   retries: process.env.CI ? 1 : 0,
   workers: 1, // one device → run serially
+  forbidOnly: !!process.env.CI,
   reporter: 'html',
   viewTree: 'on-failure', // attaches the accessibility tree to the report when a test fails
   expect: { timeout: 10_000 },
   use: {
+    // The platform fixture reads use.platform; the top-level default alone leaves it undefined.
+    platform,
     actionTimeout: 10_000,
     animations: 'off',
   },
