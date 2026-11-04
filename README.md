@@ -25,7 +25,34 @@ stockpilot/
 ├── tests/mobilewright/ Mobilewright (Playwright-style) sample suite, Screen Object Model
 └── tests/appium-wdio/  Appium + WebdriverIO (TypeScript) sample suite, Page Object Model
 .github/workflows/build-apk.yml   builds the APK on GitHub for free
+.github/workflows/ci.yml          lint, types, Expo compatibility, Android/iOS bundles
 ```
+
+## Continuous integration
+
+The **CI** workflow runs on every branch push, pull request, and manual dispatch
+from GitHub's **Actions → CI → Run workflow**. Five independent checks run on
+Node.js 24: ESLint, TypeScript, Expo SDK dependency compatibility, and production
+JavaScript/asset exports for Android and iOS. A failing check does not cancel the
+others, and any failure makes the workflow fail.
+
+To reproduce the checks locally:
+
+```bash
+npm ci --legacy-peer-deps --no-audit --no-fund
+npm run lint
+npm run typecheck
+# Set CI=1 in your shell so dependency validation never prompts to change packages.
+npx expo install --check
+npx expo export --platform android --output-dir dist/android --max-workers 2
+npx expo export --platform ios --output-dir dist/ios --max-workers 2
+```
+
+The install flag matches the existing APK workflow because the current dependency
+tree requires legacy peer resolution. The bundle checks validate production
+JavaScript and assets; installable APKs are produced by **Build Android APK**.
+The sample device test suites need a running emulator/device and are not part of
+this workflow.
 
 ---
 
