@@ -22,6 +22,19 @@ npx mobilewright show-report
 npx mobilewright inspect           # live locator inspector in your browser
 ```
 
+## GitHub Actions
+
+The root `.github/workflows/ci.yml` runs this suite on an Android 35 x86_64
+emulator on pushes, pull requests, or manual dispatch. It downloads an existing
+APK and never builds the app. Provide a stable HTTPS APK URL using the repository
+variable `MOBILEWRIGHT_APK_URL` or the manual `apk_url` input. Otherwise, CI reuses
+the newest unexpired `StockPilot-B2B-apk` artifact from this repository.
+
+All 36 cases run serially with no CI retries, including the online/WebView cases.
+The **mobilewright-android-report** artifact includes the HTML report, failure
+attachments, and logcat even when tests fail. Download and extract the artifact,
+then run `npx mobilewright show-report ./mobilewright-report`.
+
 ## Patterns worth copying
 
 | Problem | How the suite solves it |

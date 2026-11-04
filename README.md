@@ -24,53 +24,50 @@ stockpilot/
 ├── docs/EXERCISES.md   122 graded exercises + bug-hunt answer key
 ├── tests/mobilewright/ Mobilewright (Playwright-style) sample suite, Screen Object Model
 └── tests/appium-wdio/  Appium + WebdriverIO (TypeScript) sample suite, Page Object Model
-.github/workflows/build-apk.yml   builds the APK on GitHub for free
-.github/workflows/ci.yml          lint, types, Expo compatibility, Android/iOS bundles
+.github/workflows/ci.yml          runs the Mobilewright suite on an Android emulator
 ```
 
 ## Continuous integration
 
-The **CI** workflow runs on every branch push, pull request, and manual dispatch
-from GitHub's **Actions → CI → Run workflow**. Five independent checks run on
-Node.js 24: ESLint, TypeScript, Expo SDK dependency compatibility, and production
-JavaScript/asset exports for Android and iOS. A failing check does not cancel the
-others, and any failure makes the workflow fail.
+This repository's CI is for **Mobilewright testing**. The **Mobilewright Tests**
+workflow runs on branch pushes, pull requests, and manual dispatch from
+**Actions → Mobilewright Tests → Run workflow**. It installs only the test
+dependencies, checks the test suite's types, boots an Android 35 emulator,
+installs an existing StockPilot APK, and runs all 36 cases serially.
+CI does not build APKs or export app bundles.
 
-To reproduce the checks locally:
+The APK comes from the `apk_url` manual input, the `MOBILEWRIGHT_APK_URL`
+repository variable, or the newest unexpired `StockPilot-B2B-apk` artifact already
+in this repository, in that order. Set the variable to a stable HTTPS URL for
+long-term use: historical Actions APK artifacts eventually expire. The APK must
+include `x86_64` support for the CI emulator.
+
+Each run uploads **mobilewright-android-report**, containing the HTML report,
+failure attachments, and Android logcat. Download it and open the report with
+`npx mobilewright show-report ./mobilewright-report`. Test failures fail CI.
+
+To run locally with a booted Android emulator/device:
 
 ```bash
-npm ci --legacy-peer-deps --no-audit --no-fund
-npm run lint
+cd tests/mobilewright
+npm ci
 npm run typecheck
-# Set CI=1 in your shell so dependency validation never prompts to change packages.
-npx expo install --check
-npx expo export --platform android --output-dir dist/android --max-workers 2
-npx expo export --platform ios --output-dir dist/ios --max-workers 2
+adb install -r /path/to/StockPilot-B2B.apk
+npm test -- --reporter list,html
 ```
-
-The install flag matches the existing APK workflow because the current dependency
-tree requires legacy peer resolution. The bundle checks validate production
-JavaScript and assets; installable APKs are produced by **Build Android APK**.
-The sample device test suites need a running emulator/device and are not part of
-this workflow.
 
 ---
 
 ## 1. Get the APK
 
-### Easiest — let GitHub build it (no Android Studio, no Expo account)
-1. Create a new repository on GitHub (private is fine) and upload this folder to it, e.g.
-   ```bash
-   git init && git add . && git commit -m "StockPilot 2.5.0"
-   git branch -M main
-   git remote add origin https://github.com/<you>/stockpilot.git
-   git push -u origin main
-   ```
-2. Open the repo → **Actions** tab → the **Build Android APK** run starts automatically (or press **Run workflow**). It takes about 15–20 minutes.
-3. When it’s green, open the run → **Artifacts** → download **StockPilot-B2B-apk** → unzip → `StockPilot-B2B-v2.5.0.apk`.
-4. `adb install -r StockPilot-B2B-v2.5.0.apk`
+Use an existing StockPilot APK as the app under test. Historical successful
+**Build Android APK** runs contain a **StockPilot-B2B-apk** artifact while its
+retention period lasts. Download and unzip it, or use your supplied APK, then run
+`adb install -r /path/to/StockPilot-B2B.apk`.
 
-Push a tag (`git tag v2.5.0 && git push --tags`) and the APK is also attached to a GitHub Release. The APK contains `arm64-v8a` (real phones) and `x86_64` (emulators).
+The APK build workflow has been removed; branch pushes and pull requests run the
+testing workflow. The app-source build instructions below are available for
+preparing a new test binary separately when needed.
 
 ## 1b. Build it yourself
 

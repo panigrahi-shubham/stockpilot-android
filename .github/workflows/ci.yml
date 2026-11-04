@@ -1,42 +1,38 @@
-name: CI
+name: Mobilewright Tests
 
 on:
   push:
     branches: ['**']
   pull_request:
   workflow_dispatch:
+    inputs:
+      apk_url:
+        description: HTTPS URL of an existing StockPilot APK (optional)
+        required: false
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: mobilewright-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  checks:
-    name: ${{ matrix.name }}
+  android:
+    name: Mobilewright Android tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Lint
-            command: npm run lint
-          - name: Typecheck
-            command: npm run typecheck
-          - name: Expo dependency compatibility
-            command: npx expo install --check
-          - name: Android production bundle
-            command: npx expo export --platform android --output-dir dist/android --max-workers 2
-          - name: iOS production bundle
-            command: npx expo export --platform ios --output-dir dist/ios --max-workers 2
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: tests/mobilewright
     env:
       CI: '1'
-      EXPO_NO_TELEMETRY: '1'
+      PLATFORM: android
+      PLAYWRIGHT_HTML_OPEN: never
     steps:
-      - name: Check out source
+      - name: Check out tests
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
@@ -46,11 +42,73 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: tests/mobilewright/package-lock.json
 
-      - name: Install locked dependencies
-        # Match the existing APK workflow and the lockfile's peer resolution.
-        run: npm ci --legacy-peer-deps --no-audit --no-fund
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
 
-      - name: ${{ matrix.name }}
-        run: ${{ matrix.command }}
+      - name: Typecheck test suite
+        run: npm run typecheck
+
+      - name: Download existing APK
+        env:
+          APK_URL: ${{ inputs.apk_url || vars.MOBILEWRIGHT_APK_URL }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -n "$APK_URL" ]; then
+            curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
+              "$APK_URL" --output "$RUNNER_TEMP/StockPilot-B2B.apk"
+            app_path="$RUNNER_TEMP/StockPilot-B2B.apk"
+            echo 'APK source: configured HTTPS download' >> "$GITHUB_STEP_SUMMARY"
+          else
+            artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=StockPilot-B2B-apk&per_page=100" \
+              --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | last | .id // empty')
+            if [ -z "$artifact_id" ]; then
+              echo '::error::No existing APK is available. Set the MOBILEWRIGHT_APK_URL repository variable or provide apk_url when running this workflow.'
+              exit 1
+            fi
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$RUNNER_TEMP/stockpilot-apk.zip"
+            mkdir -p "$RUNNER_TEMP/stockpilot-apk"
+            unzip -q "$RUNNER_TEMP/stockpilot-apk.zip" -d "$RUNNER_TEMP/stockpilot-apk"
+            mapfile -t apks < <(find "$RUNNER_TEMP/stockpilot-apk" -type f -name '*.apk')
+            if [ "${#apks[@]}" -ne 1 ]; then
+              echo '::error::The APK artifact must contain exactly one APK.'
+              exit 1
+            fi
+            app_path="${apks[0]}"
+            echo "APK source: existing artifact $artifact_id" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          unzip -t "$app_path" > /dev/null
+          echo "APP_PATH=$app_path" >> "$GITHUB_ENV"
+          sha256sum "$app_path" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run all Mobilewright test cases on Android
+        uses: reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808 # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          ram-size: 2048M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated
+          disable-animations: true
+          working-directory: tests/mobilewright
+          script: bash ../../.github/scripts/run-mobilewright.sh
+
+      - name: Upload Mobilewright report and device logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: mobilewright-android-report
+          path: |
+            tests/mobilewright/mobilewright-report/
+            tests/mobilewright/test-results/
+          retention-days: 30
+          if-no-files-found: warn
