@@ -149,6 +149,7 @@ jobs:
             -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -skin 720x1280
             -dpi-device 320 -feature -Vulkan
           disable-animations: true
+          enable-hw-keyboard: true
           working-directory: tests/mobilewright
           script: bash ../../.github/scripts/run-mobilewright.sh
           heap-size: 256M

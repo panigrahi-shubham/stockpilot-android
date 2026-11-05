@@ -11,6 +11,7 @@ adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
 adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 0
+adb shell settings put secure show_ime_with_hard_keyboard 0
 adb install -r "$APP_PATH"
 adb shell pm path com.stockpilot.b2b
 adb shell dumpsys package com.stockpilot.b2b > test-results/package.txt
