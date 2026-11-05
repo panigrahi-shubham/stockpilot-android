@@ -1,5 +1,5 @@
 import { test, expect } from '@mobilewright/test';
-import { deepLink } from '../support/app.js';
+import { deepLink, scrollAboveFooter } from '../support/app.js';
 import { loginFresh } from '../support/flows.js';
 
 test.describe('Seller mode, leads, inbox & compare', () => {
@@ -27,11 +27,13 @@ test.describe('Seller mode, leads, inbox & compare', () => {
 
     const add = screen.getByTestId('listing-add-spec-button');
     for (let i = 0; i < 5; i++) {
-      await add.scrollIntoViewIfNeeded();
+      await scrollAboveFooter(device, add, 'listing-form-scroll');
       await add.tap();
+      await screen.getByTestId('listing-spec-count').scrollIntoViewIfNeeded({ direction: 'down' });
       await expect(screen.getByTestId('listing-spec-count')).toHaveText(`${i + 2}/6`);
     }
     await expect(screen.getByTestId('listing-spec-count')).toHaveText('6/6');
+    await scrollAboveFooter(device, add, 'listing-form-scroll');
     await expect(add).toBeDisabled();
 
     await screen.getByTestId('listing-save-draft-button').tap();

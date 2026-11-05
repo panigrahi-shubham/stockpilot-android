@@ -1,4 +1,4 @@
-import type { Device, Screen } from 'mobilewright';
+import type { Device, Locator, Screen } from 'mobilewright';
 
 export const APP_ID = 'com.stockpilot.b2b';
 export const PASSWORD = 'Pilot@123';
@@ -35,6 +35,33 @@ export async function deepLink(device: Device, path: string) {
 export async function centreOf(screen: Screen, testId: string) {
   const b = await screen.getByTestId(testId).boundingBox();
   return { x: Math.round(b.x + b.width / 2), y: Math.round(b.y + b.height / 2), box: b };
+}
+
+/** Keep touch coordinates inside the visible content, away from fixed headers and footers. */
+export async function swipeWithin(device: Device, containerId: string, direction: 'up' | 'down' = 'up') {
+  const bounds = await device.screen.getByTestId(containerId).boundingBox();
+  const { width, height } = await device.screenSize();
+  const top = Math.max(bounds.y, height * 0.15);
+  const bottom = Math.min(bounds.y + bounds.height, height * 0.8);
+  const x = Math.min(width * 0.85, bounds.x + bounds.width * 0.85);
+  const high = top + (bottom - top) * 0.2;
+  const low = top + (bottom - top) * 0.8;
+  await device.screen.gesture({ pointers: [[
+    { x, y: direction === 'up' ? low : high, time: 0 },
+    { x, y: direction === 'up' ? high : low, time: 500 },
+  ]] });
+}
+
+/** The driver's viewport check alone does not account for sticky app controls. */
+export async function scrollAboveFooter(device: Device, locator: Locator, containerId: string) {
+  await locator.scrollIntoViewIfNeeded();
+  const { height } = await device.screenSize();
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const bounds = await locator.boundingBox();
+    if (bounds.y >= height * 0.15 && bounds.y + bounds.height <= height * 0.78) return;
+    await swipeWithin(device, containerId, bounds.y < height * 0.15 ? 'down' : 'up');
+  }
+  throw new Error('Control could not be brought above the fixed footer.');
 }
 
 /** Parse "₹1,23,456.78" → 123456.78 */

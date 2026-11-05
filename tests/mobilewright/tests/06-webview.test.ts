@@ -1,5 +1,6 @@
 import { test, expect } from '@mobilewright/test';
 import { loginFresh } from '../support/flows.js';
+import { swipeWithin } from '../support/app.js';
 
 test.describe('Hybrid WebView', () => {
   test.beforeEach(async ({ device, screen }) => {
@@ -7,7 +8,7 @@ test.describe('Hybrid WebView', () => {
     await screen.getByTestId('tab-account').tap();
   });
 
-  test('scrolling Terms to the end enables the native accept button', async ({ screen }) => {
+  test('scrolling Terms to the end enables the native accept button', async ({ device, screen }) => {
     await screen.getByTestId('account-row-terms').scrollIntoViewIfNeeded();
     await screen.getByTestId('account-row-terms').tap();
     await expect(screen.getByTestId('webview-accept-button')).toBeDisabled();
@@ -16,7 +17,7 @@ test.describe('Hybrid WebView', () => {
     await expect(webview.getByText('Terms of Trade', { exact: true })).toBeVisible();
     // Real touch scrolling triggers the app's read-to-end event on a release APK.
     await webview.getByText('— End of document —', { exact: true }).scrollIntoViewIfNeeded({ maxSwipes: 30 });
-    await webview.swipe({ direction: 'up' });
+    await swipeWithin(device, 'webview');
 
     // Back on the native side
     await expect(screen.getByTestId('webview-accept-button')).toBeEnabled();
