@@ -1,6 +1,6 @@
 import { test, expect } from '@mobilewright/test';
 import { loginFresh } from '../support/flows.js';
-import { swipeWithin } from '../support/app.js';
+import { scrollAboveFooter, swipeWithin } from '../support/app.js';
 
 test.describe('Hybrid WebView', () => {
   test.beforeEach(async ({ device, screen }) => {
@@ -24,16 +24,23 @@ test.describe('Hybrid WebView', () => {
     await screen.getByTestId('webview-accept-button').tap();
   });
 
-  test('feedback form shows web validation for a missing rating', async ({ screen }) => {
+  test('feedback form shows web validation for a missing rating', async ({ device, screen }) => {
     await screen.getByTestId('account-row-feedback').scrollIntoViewIfNeeded();
     await screen.getByTestId('account-row-feedback').tap();
 
     const webview = screen.getByTestId('webview');
-    await webview.getByRole('textfield').nth(0).fill('Ravi');
-    await webview.getByRole('textfield').nth(1).scrollIntoViewIfNeeded();
-    await webview.getByRole('textfield').nth(1).fill('Delivery was quick and the cartons were intact.');
+    const name = webview.getByPlaceholder('e.g. Ravi', { exact: true });
+    const comments = webview.getByPlaceholder('What can we improve?', { exact: true });
+    await scrollAboveFooter(device, name, 'webview');
+    await name.tap();
+    await expect(name).toBeFocused();
+    await device.driver.typeText('Ravi');
+    await scrollAboveFooter(device, comments, 'webview');
+    await comments.tap();
+    await expect(comments).toBeFocused();
+    await device.driver.typeText('Delivery was quick and the cartons were intact.');
     const submit = webview.getByRole('button', { name: /Submit feedback/i });
-    await submit.scrollIntoViewIfNeeded();
+    await scrollAboveFooter(device, submit, 'webview');
     await submit.tap();
     await expect(webview.getByText('Please select a rating.', { exact: true })).toBeVisible();
   });

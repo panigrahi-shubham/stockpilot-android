@@ -84,8 +84,11 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     for (const sku of ['SKU-10001', 'SKU-10002']) {
       await screen.getByTestId(`product-card-${sku}-open`).longPress({ duration: 800 });
       await screen.getByTestId('quick-action-compare').tap();
+      await expect(screen.getByTestId('catalog-quick-actions')).toBeHidden();
     }
     await expect(screen.getByTestId('catalog-compare-count')).toHaveText('2 selected to compare');
+    // The confirmation toast overlaps the fixed compare bar until it disappears.
+    await expect(screen.getByTestId('toast')).toBeHidden();
     await screen.getByTestId('catalog-compare-open').tap();
     await expect(screen.getByTestId('compare-screen')).toBeVisible();
     await screen.getByTestId('compare-table-scroll').swipe({ direction: 'left' });

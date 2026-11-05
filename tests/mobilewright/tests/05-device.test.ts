@@ -31,6 +31,7 @@ test.describe('Device & system features', () => {
   test('manual barcode lookup with checksum validation', async ({ device, screen }) => {
     await screen.getByTestId('tab-scan').tap();
     await screen.getByTestId('scan-manual-input').fill('1234567890123');
+    await scrollAboveFooter(device, screen.getByTestId('scan-manual-submit-button'), 'scan-scroll');
     await screen.getByTestId('scan-manual-submit-button').tap();
     await expect(screen.getByTestId('scan-manual-input-error')).toContainText('valid check digit');
 
