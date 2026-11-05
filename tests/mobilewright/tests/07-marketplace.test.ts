@@ -111,8 +111,9 @@ test.describe('Online features (device needs internet)', () => {
     await deepLink(device, `browser?url=${encodeURIComponent('https://the-internet.herokuapp.com/login')}`);
     const webview = screen.getByTestId('browser-webview');
     await expect(webview.getByText('Login Page', { exact: true })).toBeVisible({ timeout: 30_000 });
-    const username = webview.getByRole('textfield').nth(0);
-    const password = webview.getByRole('textfield').nth(1);
+    // Android exposes only the visible WebView controls, so positional indexes change while scrolling.
+    const username = webview.getByPlaceholder('Username', { exact: true });
+    const password = webview.getByPlaceholder('Password', { exact: true });
     await scrollAboveFooter(device, username, 'browser-webview');
     await username.fill('tomsmith');
     await expect(username).toHaveValue('tomsmith');
