@@ -46,6 +46,8 @@ export class CatalogScreen {
   }
 
   async addProduct(sku: string) {
-    await this.screen.getByTestId(`product-add-${sku}`).tap();
+    const add = this.screen.getByTestId(`product-add-${sku}`);
+    await add.scrollIntoViewIfNeeded();
+    await add.tap();
   }
 }

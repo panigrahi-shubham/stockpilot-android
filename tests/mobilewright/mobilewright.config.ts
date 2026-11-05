@@ -10,6 +10,7 @@ const platform = (process.env.PLATFORM ?? 'android') as 'android' | 'ios';
 
 export default defineConfig({
   platform,
+  deviceId: process.env.MOBILEWRIGHT_DEVICE_ID,
   bundleId: 'com.stockpilot.b2b',
   autoAppLaunch: false, // Each scenario launches once through freshStart; avoid duplicate cold starts.
   installApps: process.env.APP_PATH ? [process.env.APP_PATH] : undefined,
@@ -28,6 +29,7 @@ export default defineConfig({
   use: {
     // The platform fixture reads use.platform; the top-level default alone leaves it undefined.
     platform,
+    deviceId: process.env.MOBILEWRIGHT_DEVICE_ID,
     actionTimeout: 10_000,
     animations: 'off',
   },

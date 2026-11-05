@@ -6,11 +6,16 @@ import { loginFresh } from '../support/flows.js';
 test.describe('Gestures', () => {
   test('swipe through onboarding slides', async ({ device, screen }) => {
     await freshStart(device);
+    const { width, height } = await device.screenSize();
+    const swipeSlide = () => screen.gesture({ pointers: [[
+      { x: width * 0.85, y: height * 0.35, time: 0 },
+      { x: width * 0.15, y: height * 0.35, time: 500 },
+    ]] });
     await expect(screen.getByTestId('onboarding-dot-0-active')).toBeVisible();
-    // Swipe over slide content; the pager's center can land on the language controls.
-    await screen.getByTestId('onboarding-slide-0').swipe({ direction: 'left' });
+    // Traverse most of the viewport so paging crosses its snap threshold on every density.
+    await swipeSlide();
     await expect(screen.getByTestId('onboarding-dot-1-active')).toBeVisible();
-    await screen.getByTestId('onboarding-slide-1').swipe({ direction: 'left' });
+    await swipeSlide();
     await expect(screen.getByTestId('onboarding-get-started-button')).toBeVisible();
   });
 

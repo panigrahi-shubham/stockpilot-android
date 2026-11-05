@@ -44,8 +44,9 @@ use a stable HTTPS download for long-term runs. Optional `apk_sha256` /
 `MOBILEWRIGHT_APK_SHA256` rejects an unexpected binary. The APK needs x86_64 support.
 
 Each emulator checks release-mode packaging and app startup before running tests.
-An unhealthy emulator fails with startup evidence instead of cascading into login
-failures. Reports **mobilewright-android-report-1**, **-2**, and **-3** include HTML,
+Preflight can close one known Pixel Launcher startup ANR, retaining its screenshot
+and a warning. App ANRs and repeated startup failures still fail with evidence.
+Reports **mobilewright-android-report-1**, **-2**, and **-3** include HTML,
 JUnit XML, failure attachments, package details, and device logs. Test failures
 fail CI. Open a downloaded HTML report with
 `npx mobilewright show-report ./mobilewright-report`.

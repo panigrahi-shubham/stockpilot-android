@@ -8,6 +8,8 @@ export class HomeScreen {
   readonly availableCredit = () => this.screen.getByTestId('home-available-credit');
 
   async waitForLoaded() {
+    await this.root().or(this.screen.getByTestId('promo-modal')).waitFor({ timeout: 20_000 });
+    await this.dismissPromoIfShown();
     await expect(this.root()).toBeVisible({ timeout: 20_000 });
   }
 
@@ -17,12 +19,9 @@ export class HomeScreen {
    */
   async dismissPromoIfShown() {
     const close = this.screen.getByTestId('promo-modal-close');
-    try {
-      await close.waitFor({ state: 'visible', timeout: 3500 });
+    if (await close.isVisible({ timeout: 3500 })) {
       await close.tap();
       await close.waitFor({ state: 'hidden' });
-    } catch {
-      /* no promo this time */
     }
   }
 

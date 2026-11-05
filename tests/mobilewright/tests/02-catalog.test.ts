@@ -25,7 +25,7 @@ test.describe('Catalog', () => {
     await screen.getByTestId('catalog-empty-action').tap();
     await expect(catalog.search()).toHaveValue('');
     await catalog.waitForResults();
-    expect(await catalog.count()).toBeGreaterThan(50);
+    await expect.poll(() => catalog.count(), { timeout: 15_000 }).toBeGreaterThan(50);
   });
 
   test('sort "Price: Low to High" puts the cheapest first', async ({ screen }) => {

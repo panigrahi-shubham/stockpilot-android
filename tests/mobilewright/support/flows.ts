@@ -16,6 +16,5 @@ export async function loginFresh(device: Device, screen: Screen, email: string =
   await expect(otp.root()).toBeVisible({ timeout: 20_000 });
   await otp.enter(await otp.readOtpFromSms());
   await home.waitForLoaded();
-  await home.dismissPromoIfShown();
   return { login, otp, home };
 }

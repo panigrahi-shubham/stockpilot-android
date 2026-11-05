@@ -59,11 +59,9 @@ test.describe('Cart & checkout', () => {
     for (let i = 0; i < 2; i++) await cart.item(SKU).plus.tap();
     await cart.checkout().tap();
 
-    const dialog = screen.waitForEvent('dialog');
     await screen.pressButton('BACK');
-    const d = await dialog;
-    expect(d.title()).toBe('Leave checkout?');
-    await d.tap('Stay');
+    await expect(screen.getByText('Leave checkout?', { exact: true })).toBeVisible();
+    await screen.getByRole('button', { name: /^Stay$/i }).tap();
     await expect(screen.getByTestId('checkout-screen')).toBeVisible();
   });
 });

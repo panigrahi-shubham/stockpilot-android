@@ -42,7 +42,6 @@ test.describe('Login & OTP', () => {
     await otp.enter(code);
     const home = new HomeScreen(screen);
     await home.waitForLoaded();
-    await home.dismissPromoIfShown();
     await expect(screen.getByTestId('header-title')).toContainText('Ravi');
   });
 
@@ -54,12 +53,12 @@ test.describe('Login & OTP', () => {
     await new HomeScreen(screen).waitForLoaded();
 
     // Log out through the native alert.
-    await new HomeScreen(screen).dismissPromoIfShown();
     await screen.getByTestId('tab-account').tap();
     await screen.getByTestId('account-row-logout').scrollIntoViewIfNeeded();
-    const dialog = screen.waitForEvent('dialog');
     await screen.getByTestId('account-row-logout').tap();
-    await (await dialog).tap('Log out');
+    await expect(screen.getByText('Log out?', { exact: true })).toBeVisible();
+    await screen.getByRole('button', { name: /^Log out$/i }).tap();
+    await expect(login.root()).toBeVisible();
 
     await relaunch(device);
     await expect(login.email()).toHaveValue(USERS.buyer);

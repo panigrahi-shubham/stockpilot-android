@@ -36,6 +36,9 @@ expires. Optional `apk_sha256` / `MOBILEWRIGHT_APK_SHA256` checks the binary's h
 CI does not create APKs and rejects debuggable APKs for release validation.
 
 `scripts/check-device.mjs` warms up the app and verifies startup before testing.
+It records and closes at most one Pixel Launcher first-boot ANR; it never dismisses
+an ANR from the app under test. Hardware keyboard mode keeps controls unobscured.
+Set `MOBILEWRIGHT_DEVICE_ID` locally to select a specific device when several are online.
 Reports include HTML, JUnit XML, failure screenshots/accessibility trees, package
 information, and device logs. Failed assertions fail CI; automatic retries are off.
 Download **mobilewright-android-report-1**, **-2**, or **-3**, extract it, then run
