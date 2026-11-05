@@ -161,6 +161,7 @@ jobs:
           path: |
             tests/mobilewright/mobilewright-report/
             tests/mobilewright/test-results/
+            tests/mobilewright/device-diagnostics/
           retention-days: 30
           if-no-files-found: warn
     needs: prepare
