@@ -21,7 +21,7 @@ test.describe('Gestures', () => {
 
   test('long-press the logo for 1.2 s opens the hidden test-account picker', async ({ device, screen }) => {
     await freshStart(device);
-    await new LoginScreen(screen).skipOnboardingIfShown();
+    await new LoginScreen(screen, device).skipOnboardingIfShown();
     await screen.getByTestId('login-logo').longPress({ duration: 1500 });
     await expect(screen.getByTestId('test-accounts-sheet')).toBeVisible();
     await screen.getByTestId('test-account-approver').tap();

@@ -7,30 +7,32 @@ import { freshStart, relaunch, USERS } from '../support/app.js';
 test.describe('Login & OTP', () => {
   test.beforeEach(async ({ device, screen }) => {
     await freshStart(device);
-    await new LoginScreen(screen).skipOnboardingIfShown();
+    await new LoginScreen(screen, device).skipOnboardingIfShown();
   });
 
-  test('empty form shows both field errors', async ({ screen }) => {
-    const login = new LoginScreen(screen);
+  test('empty form shows both field errors', async ({ device, screen }) => {
+    const login = new LoginScreen(screen, device);
     await login.submit().tap();
     await expect(login.emailError()).toHaveText('Email is required');
     await expect(login.passwordError()).toHaveText('Password is required');
   });
 
-  test('wrong password shows the error banner', async ({ screen }) => {
-    const login = new LoginScreen(screen);
+  test('wrong password shows the error banner', async ({ device, screen }) => {
+    const login = new LoginScreen(screen, device);
     await login.login(USERS.buyer, 'wrong123');
+    await login.errorBanner().scrollIntoViewIfNeeded({ direction: 'down' });
     await expect(login.errorBanner()).toContainText('Incorrect email or password');
   });
 
-  test('locked account cannot sign in', async ({ screen }) => {
-    const login = new LoginScreen(screen);
+  test('locked account cannot sign in', async ({ device, screen }) => {
+    const login = new LoginScreen(screen, device);
     await login.login(USERS.locked);
+    await login.errorBanner().scrollIntoViewIfNeeded({ direction: 'down' });
     await expect(login.errorBanner()).toContainText(/locked/i);
   });
 
-  test('wrong OTP, then the OTP from the SMS banner signs in @smoke', async ({ screen }) => {
-    const login = new LoginScreen(screen);
+  test('wrong OTP, then the OTP from the SMS banner signs in @smoke', async ({ device, screen }) => {
+    const login = new LoginScreen(screen, device);
     const otp = new OtpScreen(screen);
     await login.login(USERS.buyer);
     await expect(otp.root()).toBeVisible({ timeout: 20_000 });
@@ -46,7 +48,7 @@ test.describe('Login & OTP', () => {
   });
 
   test('"Remember me" pre-fills the email after an app restart', async ({ device, screen }) => {
-    const login = new LoginScreen(screen);
+    const login = new LoginScreen(screen, device);
     const otp = new OtpScreen(screen);
     await login.login(USERS.buyer, undefined, { remember: true });
     await otp.enter(await otp.readOtpFromSms());

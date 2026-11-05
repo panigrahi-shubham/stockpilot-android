@@ -9,6 +9,8 @@ trap 'adb logcat -d -v threadtime > test-results/logcat.txt 2>&1 || true; adb sh
 adb logcat -c
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
+adb shell wm size 720x1280
+adb shell wm density 320
 adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 0
 adb shell settings put secure show_ime_with_hard_keyboard 0

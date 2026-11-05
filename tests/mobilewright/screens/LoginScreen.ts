@@ -1,8 +1,8 @@
-import { expect, type Screen } from 'mobilewright';
-import { PASSWORD } from '../support/app.js';
+import { expect, type Device, type Screen } from 'mobilewright';
+import { PASSWORD, scrollAboveFooter } from '../support/app.js';
 
 export class LoginScreen {
-  constructor(private readonly screen: Screen) {}
+  constructor(private readonly screen: Screen, private readonly device: Device) {}
 
   readonly root = () => this.screen.getByTestId('login-screen');
   readonly email = () => this.screen.getByTestId('login-email-input');
@@ -23,9 +23,15 @@ export class LoginScreen {
   }
 
   async login(email: string, password = PASSWORD, opts: { remember?: boolean } = {}) {
+    await scrollAboveFooter(this.device, this.email(), 'login-scroll');
     await this.email().fill(email);
+    await scrollAboveFooter(this.device, this.password(), 'login-scroll');
     await this.password().fill(password);
-    if (opts.remember) await this.remember().check();
+    if (opts.remember) {
+      await scrollAboveFooter(this.device, this.remember(), 'login-scroll');
+      await this.remember().check();
+    }
+    await scrollAboveFooter(this.device, this.submit(), 'login-scroll');
     await this.submit().tap();
   }
 }

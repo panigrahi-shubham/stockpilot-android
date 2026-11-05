@@ -7,7 +7,7 @@ import { freshStart, USERS } from './app.js';
 /** Fresh install → skip onboarding → password → OTP from SMS banner → Home (promo handled). */
 export async function loginFresh(device: Device, screen: Screen, email: string = USERS.buyer) {
   await freshStart(device);
-  const login = new LoginScreen(screen);
+  const login = new LoginScreen(screen, device);
   const otp = new OtpScreen(screen);
   const home = new HomeScreen(screen);
 

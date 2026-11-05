@@ -37,15 +37,23 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     await expect(add).toBeDisabled();
 
     await screen.getByTestId('listing-save-draft-button').tap();
-    await expect(screen.getByTestId('toast-message')).toHaveText('Saved as draft');
+    await expect(
+      screen.getByTestId('home-screen'),
+      'Saving a draft should return to the previous screen without asking to discard changes',
+    ).toBeVisible({ timeout: 20_000 });
+    await deepLink(device, 'seller/products');
+    await screen.getByTestId('my-products-search-input').fill('Groundnut Oil 15 L Tin');
+    await expect(screen.getByText('Groundnut Oil 15 L Tin', { exact: true })).toBeVisible();
   });
 
   test('lead status: send a quotation', async ({ device, screen }) => {
     await deepLink(device, 'seller/lead/LD-9031');
     await expect(screen.getByTestId('lead-detail-status').getByText(/^new$/i)).toBeVisible();
     await screen.getByTestId('lead-status-select-quoted').tap();
+    await screen.getByTestId('lead-quote-input').scrollIntoViewIfNeeded();
     await screen.getByTestId('lead-quote-input').fill('1800');
     await expect(screen.getByTestId('lead-quote-total')).toContainText('72,000');
+    await screen.getByTestId('lead-quote-send-button').scrollIntoViewIfNeeded();
     await screen.getByTestId('lead-quote-send-button').tap();
     await expect(screen.getByTestId('lead-detail-quote')).toContainText('1,800');
   });
@@ -77,6 +85,7 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     }
     await expect(screen.getByTestId('catalog-compare-count')).toHaveText('2 selected to compare');
     await screen.getByTestId('catalog-compare-open').tap();
+    await screen.getByTestId('compare-table-scroll').swipe({ direction: 'left' });
     await expect(screen.getByTestId('compare-column-SKU-10002')).toBeVisible();
     await screen.getByTestId('compare-best-price').scrollIntoViewIfNeeded();
     await expect(screen.getByTestId('compare-best-price')).toBeVisible();
