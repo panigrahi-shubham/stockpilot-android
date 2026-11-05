@@ -10,7 +10,9 @@ export async function dismissKeyboard(device: Device) {
   // The test fixture's RPC session uses a synthetic Device.id ("test"), not an ADB serial.
   const serialArgs = process.env.STOCKPILOT_ADB_SERIAL ? ['-s', process.env.STOCKPILOT_ADB_SERIAL] : [];
   const { stdout } = await execFileAsync('adb', [...serialArgs, 'shell', 'dumpsys', 'input_method']);
-  if (/(?:mInputShown|isInputViewShown|mIsInputViewShown)=true\b/.test(stdout)) {
+  // The IME service can retain mIsInputViewShown=true after it is hidden.
+  // Only the input manager's current mInputShown state determines whether Back is safe.
+  if (stdout.match(/\bmInputShown=(true|false)\b/)?.[1] === 'true') {
     await device.screen.pressButton('BACK');
   }
 }
