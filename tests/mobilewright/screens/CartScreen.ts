@@ -1,8 +1,8 @@
-import { expect, type Screen } from 'mobilewright';
-import { rupees } from '../support/app.js';
+import { expect, type Device, type Screen } from 'mobilewright';
+import { rupees, scrollAboveFooter } from '../support/app.js';
 
 export class CartScreen {
-  constructor(private readonly screen: Screen) {}
+  constructor(private readonly screen: Screen, private readonly device: Device) {}
 
   readonly root = () => this.screen.getByTestId('cart-screen');
   readonly couponInput = () => this.screen.getByTestId('cart-coupon-input');
@@ -30,7 +30,9 @@ export class CartScreen {
   }
 
   async applyCoupon(code: string) {
+    await scrollAboveFooter(this.device, this.couponInput(), 'cart-scroll');
     await this.couponInput().fill(code);
+    await scrollAboveFooter(this.device, this.couponApply(), 'cart-scroll');
     await this.couponApply().tap();
   }
 

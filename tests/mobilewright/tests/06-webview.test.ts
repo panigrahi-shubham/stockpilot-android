@@ -1,6 +1,6 @@
 import { test, expect } from '@mobilewright/test';
 import { loginFresh } from '../support/flows.js';
-import { scrollAboveFooter, swipeWithin } from '../support/app.js';
+import { dismissKeyboard, scrollAboveFooter, swipeWithin } from '../support/app.js';
 
 test.describe('Hybrid WebView', () => {
   test.beforeEach(async ({ device, screen }) => {
@@ -41,7 +41,9 @@ test.describe('Hybrid WebView', () => {
     await expect(comments).toBeFocused();
     await device.driver.typeText('Delivery was quick and the cartons were intact.');
     const submit = webview.getByRole('button', { name: /Submit feedback/i });
-    await scrollAboveFooter(device, submit, 'webview');
+    // Feedback has no fixed footer: its fully visible bottom button is safe to tap.
+    await dismissKeyboard(device);
+    await submit.scrollIntoViewIfNeeded();
     await submit.tap();
     await expect(webview.getByText('Please select a rating.', { exact: true })).toBeVisible();
   });

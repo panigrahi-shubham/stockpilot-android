@@ -16,27 +16,28 @@ test.describe('Cart & checkout', () => {
     await expect(screen.getByTestId('toast-message')).toContainText('to cart');
   });
 
-  test('coupon below minimum shows a helpful error, then applies after raising quantity', async ({ screen }) => {
-    const cart = new CartScreen(screen);
+  test('coupon below minimum shows a helpful error, then applies after raising quantity', async ({ device, screen }) => {
+    const cart = new CartScreen(screen, device);
     await cart.open();
     await cart.applyCoupon('B2B10');
     await expect(cart.couponError()).toContainText('more to use this code');
 
+    await cart.item(SKU).plus.scrollIntoViewIfNeeded({ direction: 'down' });
     for (let i = 0; i < 4; i++) await cart.item(SKU).plus.tap();
     await expect(cart.item(SKU).qty).toHaveValue(/\d+/);
     await cart.applyCoupon('B2B10');
     await expect(cart.couponStatus()).toContainText('You save');
   });
 
-  test('swipe left deletes an item and the empty state appears', async ({ screen }) => {
-    const cart = new CartScreen(screen);
+  test('swipe left deletes an item and the empty state appears', async ({ device, screen }) => {
+    const cart = new CartScreen(screen, device);
     await cart.open();
     await cart.swipeDelete(SKU);
     await expect(cart.empty()).toBeVisible();
   });
 
-  test('checkout validates the delivery step @smoke', async ({ screen }) => {
-    const cart = new CartScreen(screen);
+  test('checkout validates the delivery step @smoke', async ({ device, screen }) => {
+    const cart = new CartScreen(screen, device);
     await cart.open();
     for (let i = 0; i < 2; i++) await cart.item(SKU).plus.tap();
     await expect(cart.checkout()).toBeEnabled();
@@ -52,9 +53,9 @@ test.describe('Cart & checkout', () => {
     await expect(screen.getByTestId('checkout-slot-evening')).toBeDisabled();
   });
 
-  test('Android back on checkout asks "Leave checkout?"', async ({ screen, platform }) => {
+  test('Android back on checkout asks "Leave checkout?"', async ({ device, screen, platform }) => {
     test.skip(platform !== 'android', 'Hardware back is Android-only');
-    const cart = new CartScreen(screen);
+    const cart = new CartScreen(screen, device);
     await cart.open();
     for (let i = 0; i < 2; i++) await cart.item(SKU).plus.tap();
     await cart.checkout().tap();
