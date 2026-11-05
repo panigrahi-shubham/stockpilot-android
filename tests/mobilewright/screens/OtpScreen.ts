@@ -1,7 +1,8 @@
-import { expect, type Screen } from 'mobilewright';
+import { expect, type Device, type Screen } from 'mobilewright';
+import { dismissKeyboard } from '../support/app.js';
 
 export class OtpScreen {
-  constructor(private readonly screen: Screen) {}
+  constructor(private readonly screen: Screen, private readonly device: Device) {}
 
   readonly root = () => this.screen.getByTestId('otp-screen');
   readonly smsText = () => this.screen.getByTestId('otp-sms-text');
@@ -24,6 +25,7 @@ export class OtpScreen {
   /** Typing all 6 digits into the first box auto-distributes them (like SMS autofill). */
   async enter(otp: string) {
     await this.firstBox().fill(otp);
+    await dismissKeyboard(this.device);
     await this.verify().tap();
   }
 }

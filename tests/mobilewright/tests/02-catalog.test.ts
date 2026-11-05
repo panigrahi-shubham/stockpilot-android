@@ -1,6 +1,7 @@
 import { test, expect } from '@mobilewright/test';
 import { CatalogScreen } from '../screens/CatalogScreen.js';
 import { loginFresh } from '../support/flows.js';
+import { dismissKeyboard } from '../support/app.js';
 
 test.describe('Catalog', () => {
   test.beforeEach(async ({ device, screen }) => {
@@ -18,10 +19,11 @@ test.describe('Catalog', () => {
     expect(filtered).toBeLessThan(all);
   });
 
-  test('nonsense search shows the empty state, and clearing restores results', async ({ screen }) => {
+  test('nonsense search shows the empty state, and clearing restores results', async ({ device, screen }) => {
     const catalog = new CatalogScreen(screen);
     await catalog.search().fill('zzzz-no-such-product');
     await expect(screen.getByTestId('catalog-empty')).toBeVisible({ timeout: 15_000 });
+    await dismissKeyboard(device);
     await screen.getByTestId('catalog-empty-action').tap();
     await expect(catalog.search()).toHaveValue('');
     await catalog.waitForResults();

@@ -59,6 +59,7 @@ test.describe('Cart & checkout', () => {
     for (let i = 0; i < 2; i++) await cart.item(SKU).plus.tap();
     await cart.checkout().tap();
 
+    await expect(screen.getByTestId('checkout-screen')).toBeVisible();
     await screen.pressButton('BACK');
     await expect(screen.getByText('Leave checkout?', { exact: true })).toBeVisible();
     await screen.getByRole('button', { name: /^Stay$/i }).tap();

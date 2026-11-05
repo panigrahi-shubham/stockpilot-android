@@ -33,7 +33,7 @@ test.describe('Login & OTP', () => {
 
   test('wrong OTP, then the OTP from the SMS banner signs in @smoke', async ({ device, screen }) => {
     const login = new LoginScreen(screen, device);
-    const otp = new OtpScreen(screen);
+    const otp = new OtpScreen(screen, device);
     await login.login(USERS.buyer);
     await expect(otp.root()).toBeVisible({ timeout: 20_000 });
 
@@ -49,7 +49,7 @@ test.describe('Login & OTP', () => {
 
   test('"Remember me" pre-fills the email after an app restart', async ({ device, screen }) => {
     const login = new LoginScreen(screen, device);
-    const otp = new OtpScreen(screen);
+    const otp = new OtpScreen(screen, device);
     await login.login(USERS.buyer, undefined, { remember: true });
     await otp.enter(await otp.readOtpFromSms());
     await new HomeScreen(screen).waitForLoaded();

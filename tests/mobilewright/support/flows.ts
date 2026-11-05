@@ -8,7 +8,7 @@ import { freshStart, USERS } from './app.js';
 export async function loginFresh(device: Device, screen: Screen, email: string = USERS.buyer) {
   await freshStart(device);
   const login = new LoginScreen(screen, device);
-  const otp = new OtpScreen(screen);
+  const otp = new OtpScreen(screen, device);
   const home = new HomeScreen(screen);
 
   await login.skipOnboardingIfShown();

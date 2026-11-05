@@ -87,6 +87,7 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     }
     await expect(screen.getByTestId('catalog-compare-count')).toHaveText('2 selected to compare');
     await screen.getByTestId('catalog-compare-open').tap();
+    await expect(screen.getByTestId('compare-screen')).toBeVisible();
     await screen.getByTestId('compare-table-scroll').swipe({ direction: 'left' });
     await expect(screen.getByTestId('compare-column-SKU-10002')).toBeVisible();
     await screen.getByTestId('compare-best-price').scrollIntoViewIfNeeded();
@@ -115,10 +116,14 @@ test.describe('Online features (device needs internet)', () => {
     const username = webview.getByPlaceholder('Username', { exact: true });
     const password = webview.getByPlaceholder('Password', { exact: true });
     await scrollAboveFooter(device, username, 'browser-webview');
-    await username.fill('tomsmith');
+    await username.tap();
+    await expect(username).toBeFocused();
+    await device.driver.typeText('tomsmith');
     await expect(username).toHaveValue('tomsmith');
     await scrollAboveFooter(device, password, 'browser-webview');
-    await password.fill('SuperSecretPassword!');
+    await password.tap();
+    await expect(password).toBeFocused();
+    await device.driver.typeText('SuperSecretPassword!');
     const login = webview.getByRole('button', { name: /Login/i });
     await scrollAboveFooter(device, login, 'browser-webview');
     await login.tap();
