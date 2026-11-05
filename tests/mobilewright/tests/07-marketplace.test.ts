@@ -1,5 +1,5 @@
 import { test, expect } from '@mobilewright/test';
-import { deepLink, scrollAboveFooter } from '../support/app.js';
+import { deepLink, dismissKeyboard, scrollAboveFooter } from '../support/app.js';
 import { loginFresh } from '../support/flows.js';
 
 test.describe('Seller mode, leads, inbox & compare', () => {
@@ -49,9 +49,11 @@ test.describe('Seller mode, leads, inbox & compare', () => {
   test('lead status: send a quotation', async ({ device, screen }) => {
     await deepLink(device, 'seller/lead/LD-9031');
     await expect(screen.getByTestId('lead-detail-status').getByText(/^new$/i)).toBeVisible();
+    await scrollAboveFooter(device, screen.getByTestId('lead-status-select-quoted'), 'lead-detail-scroll');
     await screen.getByTestId('lead-status-select-quoted').tap();
     await screen.getByTestId('lead-quote-input').scrollIntoViewIfNeeded();
     await screen.getByTestId('lead-quote-input').fill('1800');
+    await dismissKeyboard(device);
     await expect(screen.getByTestId('lead-quote-total')).toContainText('72,000');
     await screen.getByTestId('lead-quote-send-button').scrollIntoViewIfNeeded();
     await screen.getByTestId('lead-quote-send-button').tap();
@@ -111,12 +113,13 @@ test.describe('Online features (device needs internet)', () => {
     await expect(webview.getByText('Login Page', { exact: true })).toBeVisible({ timeout: 30_000 });
     const username = webview.getByRole('textfield').nth(0);
     const password = webview.getByRole('textfield').nth(1);
-    await username.scrollIntoViewIfNeeded();
+    await scrollAboveFooter(device, username, 'browser-webview');
     await username.fill('tomsmith');
-    await password.scrollIntoViewIfNeeded();
+    await expect(username).toHaveValue('tomsmith');
+    await scrollAboveFooter(device, password, 'browser-webview');
     await password.fill('SuperSecretPassword!');
     const login = webview.getByRole('button', { name: /Login/i });
-    await login.scrollIntoViewIfNeeded();
+    await scrollAboveFooter(device, login, 'browser-webview');
     await login.tap();
     await expect(webview.getByText(/You logged into a secure area!/)).toBeVisible({ timeout: 30_000 });
     // Native toolbar reflects WebView history

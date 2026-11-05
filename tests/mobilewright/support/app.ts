@@ -1,4 +1,17 @@
 import type { Device, Locator, Screen } from 'mobilewright';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
+
+/** Only press Back when Android reports an open keyboard; otherwise it navigates away. */
+export async function dismissKeyboard(device: Device) {
+  if (process.env.PLATFORM === 'ios') return;
+  const { stdout } = await execFileAsync('adb', ['-s', device.id, 'shell', 'dumpsys', 'input_method']);
+  if (/(?:mInputShown|isInputViewShown|mIsInputViewShown)=true\b/.test(stdout)) {
+    await device.screen.pressButton('BACK');
+  }
+}
 
 export const APP_ID = 'com.stockpilot.b2b';
 export const PASSWORD = 'Pilot@123';
@@ -54,6 +67,7 @@ export async function swipeWithin(device: Device, containerId: string, direction
 
 /** The driver's viewport check alone does not account for sticky app controls. */
 export async function scrollAboveFooter(device: Device, locator: Locator, containerId: string) {
+  await dismissKeyboard(device);
   await locator.scrollIntoViewIfNeeded();
   const { height } = await device.screenSize();
   for (let attempt = 0; attempt < 8; attempt++) {

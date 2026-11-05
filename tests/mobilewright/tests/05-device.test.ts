@@ -1,5 +1,5 @@
 import { test, expect } from '@mobilewright/test';
-import { APP_ID, deepLink } from '../support/app.js';
+import { deepLink, scrollAboveFooter } from '../support/app.js';
 import { loginFresh } from '../support/flows.js';
 
 test.describe('Device & system features', () => {
@@ -28,13 +28,15 @@ test.describe('Device & system features', () => {
     await expect(screen.getByTestId('scan-camera-container')).toBeVisible({ timeout: 15_000 });
   });
 
-  test('manual barcode lookup with checksum validation', async ({ screen }) => {
+  test('manual barcode lookup with checksum validation', async ({ device, screen }) => {
     await screen.getByTestId('tab-scan').tap();
     await screen.getByTestId('scan-manual-input').fill('1234567890123');
     await screen.getByTestId('scan-manual-submit-button').tap();
     await expect(screen.getByTestId('scan-manual-input-error')).toContainText('valid check digit');
 
+    await scrollAboveFooter(device, screen.getByTestId('scan-sample-0'), 'scan-scroll');
     await screen.getByTestId('scan-sample-0').tap();
+    await scrollAboveFooter(device, screen.getByTestId('scan-manual-submit-button'), 'scan-scroll');
     await screen.getByTestId('scan-manual-submit-button').tap();
     await screen.getByTestId('scan-result-card').scrollIntoViewIfNeeded();
     await expect(screen.getByTestId('scan-result-card')).toBeVisible();
@@ -53,10 +55,12 @@ test.describe('Device & system features', () => {
     await deepLink(device, 'settings');
     await screen.getByTestId('settings-app-lock-switch').scrollIntoViewIfNeeded();
     await screen.getByTestId('settings-app-lock-switch').tap();
+    await expect(screen.getByTestId('settings-app-lock-switch')).toBeChecked();
 
     await screen.pressButton('HOME');
     await new Promise((r) => setTimeout(r, 6000)); // the feature itself is time-based (5 s)
-    await device.launchApp(APP_ID);
+    // A deep link resumes the existing activity and preserves its background timer.
+    await deepLink(device, 'settings');
 
     await expect(screen.getByTestId('app-lock-screen')).toBeVisible();
     for (const k of ['1', '2', '3', '4']) await screen.getByTestId(`app-lock-key-${k}`).tap();
