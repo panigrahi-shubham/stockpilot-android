@@ -29,8 +29,9 @@ test.describe('Hybrid WebView', () => {
     await screen.getByTestId('account-row-feedback').tap();
 
     const webview = screen.getByTestId('webview');
-    const name = webview.getByPlaceholder('e.g. Ravi', { exact: true });
-    const comments = webview.getByPlaceholder('What can we improve?', { exact: true });
+    // Android exposes the associated HTML labels as these native input hints.
+    const name = webview.getByPlaceholder('Your name', { exact: true });
+    const comments = webview.getByPlaceholder('Comments', { exact: true });
     await scrollAboveFooter(device, name, 'webview');
     await name.tap();
     await expect(name).toBeFocused();
