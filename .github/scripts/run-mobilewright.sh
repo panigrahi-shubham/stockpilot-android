@@ -4,7 +4,7 @@ set -euo pipefail
 # This script runs from tests/mobilewright on an already booted emulator.
 : "${APP_PATH:?APP_PATH must point to an existing StockPilot APK}"
 mkdir -p device-diagnostics
-trap 'adb logcat -d -v threadtime > device-diagnostics/logcat.txt 2>&1 || true; adb shell dumpsys activity activities > device-diagnostics/activity.txt 2>&1 || true' EXIT
+trap 'adb logcat -d -v threadtime > device-diagnostics/logcat.txt 2>&1 || true; adb shell dumpsys activity activities > device-diagnostics/activity.txt 2>&1 || true; adb shell dumpsys connectivity > device-diagnostics/connectivity-final.txt 2>&1 || true' EXIT
 
 adb logcat -c
 adb shell input keyevent KEYCODE_WAKEUP
@@ -23,6 +23,11 @@ if grep -q 'DEBUGGABLE' device-diagnostics/package.txt; then
   exit 1
 fi
 npx mobilewright install
+# Reconnect the CI emulator's Wi-Fi, then wait for actual Android network validation.
+adb shell svc wifi disable
+adb shell svc wifi enable
+adb shell svc data enable
+node scripts/check-network.mjs
 node scripts/check-device.mjs
 
 # The app is installed once above; the tests reset its data before each flow.

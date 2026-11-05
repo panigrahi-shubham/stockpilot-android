@@ -36,6 +36,10 @@ expires. Optional `apk_sha256` / `MOBILEWRIGHT_APK_SHA256` checks the binary's h
 CI does not create APKs and rejects debuggable APKs for release validation.
 
 `scripts/check-device.mjs` warms up the app and verifies startup before testing.
+`scripts/check-network.mjs` first waits for the active default network to have
+Android's INTERNET and VALIDATED capabilities. An offline emulator fails preflight
+with connectivity diagnostics instead of producing a cascade of login failures.
+See [Android network validation](https://developer.android.com/develop/connectivity/network-ops/reading-network-state).
 It records and closes at most one Pixel Launcher first-boot ANR; it never dismisses
 an ANR from the app under test. Hardware keyboard mode keeps controls unobscured.
 Set `MOBILEWRIGHT_DEVICE_ID` locally to select a specific device when several are online.
