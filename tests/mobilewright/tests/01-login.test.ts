@@ -2,7 +2,7 @@ import { test, expect } from '@mobilewright/test';
 import { LoginScreen } from '../screens/LoginScreen.js';
 import { OtpScreen } from '../screens/OtpScreen.js';
 import { HomeScreen } from '../screens/HomeScreen.js';
-import { freshStart, relaunch, USERS } from '../support/app.js';
+import { freshStart, relaunch, scrollAboveFooter, USERS } from '../support/app.js';
 
 test.describe('Login & OTP', () => {
   test.beforeEach(async ({ device, screen }) => {
@@ -56,7 +56,7 @@ test.describe('Login & OTP', () => {
 
     // Log out through the native alert.
     await screen.getByTestId('tab-account').tap();
-    await screen.getByTestId('account-row-logout').scrollIntoViewIfNeeded();
+    await scrollAboveFooter(device, screen.getByTestId('account-row-logout'), 'account-scroll');
     await screen.getByTestId('account-row-logout').tap();
     await expect(screen.getByText('Log out?', { exact: true })).toBeVisible();
     await screen.getByRole('button', { name: /^Log out$/i }).tap();
