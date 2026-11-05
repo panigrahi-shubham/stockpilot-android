@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile);
 export async function dismissKeyboard(device: Device) {
   if (process.env.PLATFORM === 'ios') return;
   // The test fixture's RPC session uses a synthetic Device.id ("test"), not an ADB serial.
-  const serialArgs = process.env.MOBILEWRIGHT_DEVICE_ID ? ['-s', process.env.MOBILEWRIGHT_DEVICE_ID] : [];
+  const serialArgs = process.env.STOCKPILOT_ADB_SERIAL ? ['-s', process.env.STOCKPILOT_ADB_SERIAL] : [];
   const { stdout } = await execFileAsync('adb', [...serialArgs, 'shell', 'dumpsys', 'input_method']);
   if (/(?:mInputShown|isInputViewShown|mIsInputViewShown)=true\b/.test(stdout)) {
     await device.screen.pressButton('BACK');

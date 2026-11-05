@@ -15,7 +15,7 @@ adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 0
 adb shell settings put secure show_ime_with_hard_keyboard 0
 adb install -r "$APP_PATH"
-export MOBILEWRIGHT_DEVICE_ID="${MOBILEWRIGHT_DEVICE_ID:-$(adb get-serialno)}"
+export STOCKPILOT_ADB_SERIAL="$(adb get-serialno)"
 adb shell pm path com.stockpilot.b2b
 adb shell dumpsys package com.stockpilot.b2b > device-diagnostics/package.txt
 if grep -q 'DEBUGGABLE' device-diagnostics/package.txt; then

@@ -39,6 +39,9 @@ CI does not create APKs and rejects debuggable APKs for release validation.
 It records and closes at most one Pixel Launcher first-boot ANR; it never dismisses
 an ANR from the app under test. Hardware keyboard mode keeps controls unobscured.
 Set `MOBILEWRIGHT_DEVICE_ID` locally to select a specific device when several are online.
+Set `STOCKPILOT_ADB_SERIAL` to the same ADB serial for the Android keyboard helper;
+CI sets this automatically. The helper dismisses the software keyboard only when
+Android reports it open, so its Back press cannot navigate away from the form.
 Reports include HTML, JUnit XML, failure screenshots/accessibility trees, package
 information, and device logs. Failed assertions fail CI; automatic retries are off.
 Download **mobilewright-android-report-1**, **-2**, or **-3**, extract it, then run
