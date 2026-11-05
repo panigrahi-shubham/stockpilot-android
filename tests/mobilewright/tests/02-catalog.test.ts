@@ -9,7 +9,7 @@ test.describe('Catalog', () => {
     await new CatalogScreen(screen).waitForResults();
   });
 
-  test('search narrows the results and shows the keyword', async ({ screen }) => {
+  test('search narrows the results and shows the keyword @smoke', async ({ screen }) => {
     const catalog = new CatalogScreen(screen);
     const all = await catalog.count();
     await catalog.searchFor('ghee');
@@ -23,6 +23,7 @@ test.describe('Catalog', () => {
     await catalog.search().fill('zzzz-no-such-product');
     await expect(screen.getByTestId('catalog-empty')).toBeVisible({ timeout: 15_000 });
     await screen.getByTestId('catalog-empty-action').tap();
+    await expect(catalog.search()).toHaveValue('');
     await catalog.waitForResults();
     expect(await catalog.count()).toBeGreaterThan(50);
   });

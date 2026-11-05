@@ -29,23 +29,31 @@ stockpilot/
 
 ## Continuous integration
 
-This repository's CI is for **Mobilewright testing**. The **Mobilewright Tests**
-workflow runs on branch pushes, pull requests, and manual dispatch from
-**Actions → Mobilewright Tests → Run workflow**. It installs only the test
-dependencies, checks the test suite's types, boots an Android 35 emulator,
-installs an existing StockPilot APK, and runs all 36 cases across three independent
-emulator jobs. Each job runs its shard serially on one device.
-CI does not build APKs or export app bundles.
+The **Release APK Tests** workflow tests an existing, non-debuggable APK.
+Pull requests run four `@smoke` cases on one emulator. Pushes to `main` run the
+full regression suite across three independent Android 35 emulators, with one
+worker per device and no automatic test retries. Manual dispatch lets you choose
+`smoke` or `regression`. CI installs only test dependencies and never builds the app.
 
-The APK comes from the `apk_url` manual input, the `MOBILEWRIGHT_APK_URL`
-repository variable, or the newest unexpired `StockPilot-B2B-apk` artifact already
-in this repository, in that order. Set the variable to a stable HTTPS URL for
-long-term use: historical Actions APK artifacts eventually expire. The APK must
-include `x86_64` support for the CI emulator.
+The prepare job resolves the APK once, records its SHA-256, and supplies that
+exact file to every shard. Supply `apk_url` or repository variable
+`MOBILEWRIGHT_APK_URL`; otherwise use `apk_artifact_id` or
+`MOBILEWRIGHT_APK_ARTIFACT_ID`. The default is the existing artifact `13338790340`,
+not whichever APK happens to be newest. Historical Actions artifacts expire, so
+use a stable HTTPS download for long-term runs. Optional `apk_sha256` /
+`MOBILEWRIGHT_APK_SHA256` rejects an unexpected binary. The APK needs x86_64 support.
 
-Each job uploads **mobilewright-android-report-1**, **-2**, or **-3**, containing its HTML report,
-failure attachments, and Android logcat. Download it and open the report with
-`npx mobilewright show-report ./mobilewright-report`. Test failures fail CI.
+Each emulator checks release-mode packaging and app startup before running tests.
+An unhealthy emulator fails with startup evidence instead of cascading into login
+failures. Reports **mobilewright-android-report-1**, **-2**, and **-3** include HTML,
+JUnit XML, failure attachments, package details, and device logs. Test failures
+fail CI. Open a downloaded HTML report with
+`npx mobilewright show-report ./mobilewright-report`.
+
+There are 36 discovered cases. The pinch case is explicitly skipped because the
+installed local Mobilewright driver cannot send two simultaneous pointers; its
+report names that coverage gap. WebView tests use native accessibility and touch
+interactions against the release APK, without enabling app debugging.
 
 To run locally with a booted Android emulator/device:
 

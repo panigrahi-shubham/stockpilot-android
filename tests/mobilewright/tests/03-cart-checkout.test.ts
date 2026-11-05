@@ -35,7 +35,7 @@ test.describe('Cart & checkout', () => {
     await expect(cart.empty()).toBeVisible();
   });
 
-  test('checkout validates the delivery step', async ({ screen }) => {
+  test('checkout validates the delivery step @smoke', async ({ screen }) => {
     const cart = new CartScreen(screen);
     await cart.open();
     for (let i = 0; i < 2; i++) await cart.item(SKU).plus.tap();

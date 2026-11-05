@@ -10,7 +10,7 @@ test.describe('Seller mode, leads, inbox & compare', () => {
   test('switching to seller mode unlocks the Seller Hub', async ({ screen }) => {
     await screen.getByTestId('tab-account').tap();
     await screen.getByTestId('account-mode-switch-seller').tap();
-    await expect(screen.getByTestId('account-mode-badge')).toContainText(/seller/i);
+    await expect(screen.getByTestId('account-mode-badge').getByText(/seller/i)).toBeVisible();
     await screen.getByTestId('account-open-seller-hub').tap();
     await expect(screen.getByTestId('seller-hub-screen')).toBeVisible();
     await expect(screen.getByTestId('seller-mode-off-card')).toBeHidden();
@@ -26,8 +26,11 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     await expect(screen.getByTestId('listing-title-input-counter')).toHaveText('22/80');
 
     const add = screen.getByTestId('listing-add-spec-button');
-    await add.scrollIntoViewIfNeeded();
-    for (let i = 0; i < 5; i++) await add.tap();
+    for (let i = 0; i < 5; i++) {
+      await add.scrollIntoViewIfNeeded();
+      await add.tap();
+      await expect(screen.getByTestId('listing-spec-count')).toHaveText(`${i + 2}/6`);
+    }
     await expect(screen.getByTestId('listing-spec-count')).toHaveText('6/6');
     await expect(add).toBeDisabled();
 
@@ -37,7 +40,7 @@ test.describe('Seller mode, leads, inbox & compare', () => {
 
   test('lead status: send a quotation', async ({ device, screen }) => {
     await deepLink(device, 'seller/lead/LD-9031');
-    await expect(screen.getByTestId('lead-detail-status')).toHaveText(/new/i);
+    await expect(screen.getByTestId('lead-detail-status').getByText(/^new$/i)).toBeVisible();
     await screen.getByTestId('lead-status-select-quoted').tap();
     await screen.getByTestId('lead-quote-input').fill('1800');
     await expect(screen.getByTestId('lead-quote-total')).toContainText('72,000');
@@ -73,6 +76,7 @@ test.describe('Seller mode, leads, inbox & compare', () => {
     await expect(screen.getByTestId('catalog-compare-count')).toHaveText('2 selected to compare');
     await screen.getByTestId('catalog-compare-open').tap();
     await expect(screen.getByTestId('compare-column-SKU-10002')).toBeVisible();
+    await screen.getByTestId('compare-best-price').scrollIntoViewIfNeeded();
     await expect(screen.getByTestId('compare-best-price')).toBeVisible();
   });
 });
@@ -92,12 +96,18 @@ test.describe('Online features (device needs internet)', () => {
 
   test('web portal: log in to a live practice site inside the WebView', async ({ device, screen }) => {
     await deepLink(device, `browser?url=${encodeURIComponent('https://the-internet.herokuapp.com/login')}`);
-    const page = await screen.getByWebView().page();
-    await page.locator('#username').fill('tomsmith');
-    await page.locator('#password').fill('SuperSecretPassword!');
-    await page.locator('button[type="submit"]').click();
-    await page.locator('#flash.success').waitFor({ state: 'visible', timeout: 15_000 });
-    expect(await page.locator('#flash').textContent()).toContain('You logged into a secure area!');
+    const webview = screen.getByTestId('browser-webview');
+    await expect(webview.getByText('Login Page', { exact: true })).toBeVisible({ timeout: 30_000 });
+    const username = webview.getByRole('textfield').nth(0);
+    const password = webview.getByRole('textfield').nth(1);
+    await username.scrollIntoViewIfNeeded();
+    await username.fill('tomsmith');
+    await password.scrollIntoViewIfNeeded();
+    await password.fill('SuperSecretPassword!');
+    const login = webview.getByRole('button', { name: /Login/i });
+    await login.scrollIntoViewIfNeeded();
+    await login.tap();
+    await expect(webview.getByText(/You logged into a secure area!/)).toBeVisible({ timeout: 30_000 });
     // Native toolbar reflects WebView history
     await expect(screen.getByTestId('browser-back-button')).toBeEnabled();
   });

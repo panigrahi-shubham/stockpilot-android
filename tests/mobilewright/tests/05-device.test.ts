@@ -7,7 +7,7 @@ test.describe('Device & system features', () => {
     await loginFresh(device, screen);
   });
 
-  test('deep link opens a product page directly', async ({ device, screen }) => {
+  test('deep link opens a product page directly @smoke', async ({ device, screen }) => {
     await deepLink(device, 'product/SKU-10005');
     await expect(screen.getByTestId('product-screen')).toBeVisible();
     await expect(screen.getByTestId('product-sku')).toContainText('SKU-10005');
@@ -36,11 +36,13 @@ test.describe('Device & system features', () => {
 
     await screen.getByTestId('scan-sample-0').tap();
     await screen.getByTestId('scan-manual-submit-button').tap();
+    await screen.getByTestId('scan-result-card').scrollIntoViewIfNeeded();
     await expect(screen.getByTestId('scan-result-card')).toBeVisible();
   });
 
   test('rotate to landscape on Reports', async ({ device, screen }) => {
     await deepLink(device, 'reports');
+    await screen.getByTestId('reports-rotate-hint').scrollIntoViewIfNeeded();
     await expect(screen.getByTestId('reports-rotate-hint')).toBeVisible();
     await device.setOrientation('landscape');
     await expect(screen.getByTestId('reports-rotate-hint')).toBeHidden();

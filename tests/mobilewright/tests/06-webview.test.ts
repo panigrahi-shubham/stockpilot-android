@@ -12,9 +12,11 @@ test.describe('Hybrid WebView', () => {
     await screen.getByTestId('account-row-terms').tap();
     await expect(screen.getByTestId('webview-accept-button')).toBeDisabled();
 
-    const page = await screen.getByWebView().page();
-    expect(await page.locator('#terms-title').textContent()).toBe('Terms of Trade');
-    await page.locator('#terms-end').scrollIntoViewIfNeeded();
+    const webview = screen.getByTestId('webview');
+    await expect(webview.getByText('Terms of Trade', { exact: true })).toBeVisible();
+    // Real touch scrolling triggers the app's read-to-end event on a release APK.
+    await webview.getByText('— End of document —', { exact: true }).scrollIntoViewIfNeeded({ maxSwipes: 30 });
+    await webview.swipe({ direction: 'up' });
 
     // Back on the native side
     await expect(screen.getByTestId('webview-accept-button')).toBeEnabled();
@@ -25,12 +27,13 @@ test.describe('Hybrid WebView', () => {
     await screen.getByTestId('account-row-feedback').scrollIntoViewIfNeeded();
     await screen.getByTestId('account-row-feedback').tap();
 
-    const page = await screen.getByWebView().page();
-    await page.locator('#fb-name').fill('Ravi');
-    await page.locator('#fb-comments').fill('Delivery was quick and the cartons were intact.');
-    await page.locator('#fb-submit').click();
-    const error = page.locator('#fb-error');
-    await error.waitFor({ state: 'visible' });
-    expect(await error.textContent()).toBe('Please select a rating.');
+    const webview = screen.getByTestId('webview');
+    await webview.getByRole('textfield').nth(0).fill('Ravi');
+    await webview.getByRole('textfield').nth(1).scrollIntoViewIfNeeded();
+    await webview.getByRole('textfield').nth(1).fill('Delivery was quick and the cartons were intact.');
+    const submit = webview.getByRole('button', { name: /Submit feedback/i });
+    await submit.scrollIntoViewIfNeeded();
+    await submit.tap();
+    await expect(webview.getByText('Please select a rating.', { exact: true })).toBeVisible();
   });
 });

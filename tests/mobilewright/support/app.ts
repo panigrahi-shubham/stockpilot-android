@@ -15,6 +15,7 @@ export const USERS = {
 /** Like a fresh install: wipe app data, then launch. Onboarding will show again. */
 export async function freshStart(device: Device) {
   await device.terminateApp(APP_ID).catch(() => {});
+  await device.setOrientation('portrait');
   await device.clearAppData(APP_ID);
   await device.launchApp(APP_ID);
 }

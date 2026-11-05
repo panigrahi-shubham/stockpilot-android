@@ -29,7 +29,7 @@ test.describe('Login & OTP', () => {
     await expect(login.errorBanner()).toContainText(/locked/i);
   });
 
-  test('wrong OTP, then the OTP from the SMS banner signs in', async ({ screen }) => {
+  test('wrong OTP, then the OTP from the SMS banner signs in @smoke', async ({ screen }) => {
     const login = new LoginScreen(screen);
     const otp = new OtpScreen(screen);
     await login.login(USERS.buyer);

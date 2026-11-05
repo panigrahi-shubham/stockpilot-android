@@ -11,13 +11,18 @@ const platform = (process.env.PLATFORM ?? 'android') as 'android' | 'ios';
 export default defineConfig({
   platform,
   bundleId: 'com.stockpilot.b2b',
+  autoAppLaunch: false, // Each scenario launches once through freshStart; avoid duplicate cold starts.
   installApps: process.env.APP_PATH ? [process.env.APP_PATH] : undefined,
   testDir: './tests',
   timeout: 120_000,
-  retries: process.env.CI ? 1 : 0,
+  retries: 0,
   workers: 1, // one device → run serially
   forbidOnly: !!process.env.CI,
-  reporter: 'html',
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }]]
+    : 'html',
+  globalTimeout: 25 * 60_000,
+  captureGitInfo: { commit: true },
   viewTree: 'on-failure', // attaches the accessibility tree to the report when a test fails
   expect: { timeout: 10_000 },
   use: {
