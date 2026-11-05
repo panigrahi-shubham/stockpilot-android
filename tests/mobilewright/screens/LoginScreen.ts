@@ -24,9 +24,15 @@ export class LoginScreen {
 
   async login(email: string, password = PASSWORD, opts: { remember?: boolean } = {}) {
     await scrollAboveFooter(this.device, this.email(), 'login-scroll');
-    await this.email().fill(email);
+    await this.email().tap();
+    await expect(this.email()).toBeFocused();
+    await this.device.driver.fill(email);
+    await expect(this.email()).toHaveValue(email);
     await scrollAboveFooter(this.device, this.password(), 'login-scroll');
-    await this.password().fill(password);
+    await this.password().tap();
+    // The driver's combined tap/fill can write into the previous field before focus moves.
+    await expect(this.password()).toBeFocused();
+    await this.device.driver.fill(password);
     if (opts.remember) {
       await scrollAboveFooter(this.device, this.remember(), 'login-scroll');
       await this.remember().check();
